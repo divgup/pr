@@ -1,0 +1,79 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import pandas as pd
+
+data1=np.load('train1_data.npy')
+print(data1.shape[0])
+data2=np.load('train2_data.npy')
+#print(data1)
+print(data2)#
+
+train_data = np.concatenate((data1,data2),axis=0)
+train_data = np.array(train_data)
+vec = (-1)*np.ones((train_data.shape[0],1),dtype=int)
+#vec = [-1]*train_data.shape[0];
+print(train_data.shape[0])
+#vec = np.array(vec)
+
+#vec = vec.transpose()
+print(vec)
+train_data = np.hstack((train_data,vec))
+#print(b)
+#train_dat = np.append(train_data,-1,axis=1)
+w = np.random.rand(3,1)
+print(w)
+print(train_data[1])
+ans = np.dot(w.T,train_data[1])
+print(ans)
+
+def label(data,data1,x):
+    vec = np.where(np.all(data==x,axis=1))
+    if vec[0] > data1.shape[0]:
+        return 1
+    else:
+        return 0    
+
+def check(data,data1,w):
+    no_misclassified = 0
+    for x in data:    
+        if (label(data,data1,x)==1) & (np.dot(w.T,x)<0):
+            print(label(data,data1,x))
+            no_misclassified = no_misclassified+1
+            
+        if (label(data,data1,x)==0) & (np.dot(w.T,x)>0):
+            no_misclassified = no_misclassified+1
+    return no_misclassified   
+
+
+w = np.random.rand(3,1)
+print(w)
+no_misclassified=784
+threshold = 2
+while no_misclassified > threshold:
+    randomRow = np.random.randint(train_data.shape[0], size=1)
+    x = train_data[randomRow]
+    #print(x)
+    #print(w)
+    print(np.dot(w.T,x.T))
+    if (label(train_data,data1,x)==1) & (np.dot(w.T,x.T) < 0):
+        w = w + x.T 
+    if (label(train_data,data1,x)==0) & (np.dot(w.T,x.T) > 0):
+        w = w - x.T    
+    no_misclassified = check(train_data,data1,w)
+    print(no_misclassified)
+
+    c1 = 1
+    c2 = 2
+    dict_={1:'violet',2:'mediumspringgreen'}
+    dict_2 = {1:'blue',2:'darkgreen'}
+    patch1 = mpatches.Patch(color=dict_[c1], label='class{}'.format(c1))
+    patch2 = mpatches.Patch(color=dict_[c2], label='class{}'.format(c2))
+    fig , ax = plt.subplots()
+    ax = plt.scatter(data1[:,0], data1[:,1], s=2, c=dict_2[c1])
+    ax = plt.scatter(data2[:,0], data2[:,1], s=2, c=dict_2[c2])
+    x = np.linspace(-7.55,10,200)
+    m = 1.07/4.958
+    c = 3.893/4.958
+    plt.plot(x,(m*x)+c , '-r', label='y=2x+1')
+    plt.show()
